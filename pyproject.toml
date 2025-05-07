@@ -1,14 +1,19 @@
-[project]
+[tool.poetry]
 name = "morl-v0001"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "AminAvan",email = "aminavan.hardware@yahoo.com"}
-]
+authors = ["AminAvan <aminavan.hardware@yahoo.com>"]
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = [
-]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+torch = "^2.7.0"
+torchvision = "^0.22.0"
+torchaudio = "^2.7.0"
+gym = "^0.26.2"
+tianshou = "^1.1.0"
+tensorboard = "^2.19.0"
+tqdm = "^4.67.1"
 
 
 [build-system]
