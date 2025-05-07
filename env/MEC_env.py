@@ -16,7 +16,7 @@ ZERO_RES = 1e-6
 MAX_EDGE_NUM = 10
         
 class MEC_Env():
-    def __init__(self, conf_file='config1.json', conf_name='MEC_Config1', w=1.0, fc=None, fe=None, edge_num=None):
+    def __init__(self, conf_file='env/config1.json', conf_name='MEC_Config1', w=1.0, fc=None, fe=None, edge_num=None):
         #读配置文件
         config = json.load(open(conf_file, 'r'))
         param = config[conf_name]
@@ -61,8 +61,7 @@ class MEC_Env():
         self.w = w
         
         self.reset()
-        
-    
+
     def reset(self):
         self.step_cnt = 0
         self.task_size = 0
@@ -80,24 +79,26 @@ class MEC_Env():
         self.edge_exe_lists = []
         self.unassigned_task_list = []
         self.action = ACTION_TO_CLOUD
-        
-        self.edge_num = np.random.randint(self.edge_num_L, self.edge_num_H+1)
+
+        self.edge_num = np.random.randint(self.edge_num_L, self.edge_num_H + 1)
         if self.edge_n:
             self.edge_num = self.edge_n
         self.action_space = self.edge_num + 1
-        self.finish_time = np.array([0]*(self.edge_num+1))
-        
-        self.cloud_cpu_freq = np.random.uniform(self.cloud_freq-self.cloud_cpu_freq_peak, self.cloud_freq+self.cloud_cpu_freq_peak)
+        self.finish_time = np.array([0] * (self.edge_num + 1))
+
+        self.cloud_cpu_freq = np.random.uniform(self.cloud_freq - self.cloud_cpu_freq_peak,
+                                                self.cloud_freq + self.cloud_cpu_freq_peak)
         self.cloud_cpu_freq = self.fc if self.fc else self.cloud_cpu_freq
-        self.edge_cpu_freq = [0]*self.edge_num
-        self.task_size_exp_theta = self.cloud_cpu_freq/self.cloud_C
+        self.edge_cpu_freq = [0] * self.edge_num
+        self.task_size_exp_theta = self.cloud_cpu_freq / self.cloud_C
         for i in range(self.edge_num):
-            self.edge_cpu_freq[i] = np.random.uniform(self.edge_freq-self.edge_cpu_freq_peak, self.edge_freq+self.edge_cpu_freq_peak)
+            self.edge_cpu_freq[i] = np.random.uniform(self.edge_freq - self.edge_cpu_freq_peak,
+                                                      self.edge_freq + self.edge_cpu_freq_peak)
             self.edge_cpu_freq[i] = self.fe if self.fe else self.edge_cpu_freq[i]
             self.edge_off_lists.append([])
             self.edge_exe_lists.append([])
-            self.task_size_exp_theta += self.edge_cpu_freq[i]/self.edge_C
-        
+            self.task_size_exp_theta += self.edge_cpu_freq[i] / self.edge_C
+
         self.done = False
         self.reward_buff = []
         self.cloud_dist = np.random.uniform(self.cloud_user_dist_L, self.cloud_user_dist_H, size=(1, self.user_num))
@@ -105,11 +106,12 @@ class MEC_Env():
         for i in range(self.edge_num):
             edge_dist = np.random.uniform(self.edge_user_dist_L, self.edge_user_dist_H, size=(1, self.user_num))
             self.user_dist = np.concatenate((self.user_dist, edge_dist), axis=0)
-            
-        
+
         self.cloud_off_datarate, self.edge_off_datarate = self.updata_off_datarate()
         self.generate_task()
-        return self.get_obs()
+        obs = self.get_obs()
+        info = {}  # Add an empty info dictionary
+        return obs, info  # Return tuple (observation, info)
         
         
     def step(self, actions):
@@ -185,7 +187,7 @@ class MEC_Env():
 
             #推进卸载
             cloud_pre_exe_list = []
-            retain_flag_off = np.ones(task_off_num, dtype=np.bool)
+            retain_flag_off = np.ones(task_off_num, dtype=bool)
             for i in range(task_off_num):
                 the_user = self.cloud_off_list[i]['user_id']
                 self.cloud_off_list[i]['remain'] -= self.cloud_off_datarate[the_user]*run_time
@@ -207,7 +209,7 @@ class MEC_Env():
             if task_exe_num > 0:
                 cloud_exe_size = self.cloud_cpu_freq*run_time/(self.cloud_C*task_exe_num)
                 cloud_exe_energy = self.cloud_k*run_time*(self.cloud_cpu_freq**3)/task_exe_num
-            retain_flag_exe = np.ones(task_exe_num, dtype=np.bool)
+            retain_flag_exe = np.ones(task_exe_num, dtype=bool)
             for i in range(task_exe_num):
                 self.cloud_exe_list[i]['remain'] -= cloud_exe_size
                 self.cloud_exe_list[i]['exe_energy'] += cloud_exe_energy
@@ -253,7 +255,7 @@ class MEC_Env():
 
                 #推进卸载
                 edge_pre_exe_list = []
-                retain_flag_off = np.ones(task_off_num, dtype=np.bool)
+                retain_flag_off = np.ones(task_off_num, dtype=bool)
                 for i in range(task_off_num):
                     the_user = self.edge_off_lists[n][i]['user_id']
                     self.edge_off_lists[n][i]['remain'] -= self.edge_off_datarate[n,the_user]*run_time
@@ -274,7 +276,7 @@ class MEC_Env():
                 if task_exe_num > 0:
                     edge_exe_size = self.edge_cpu_freq[n]*run_time/(self.edge_C*task_exe_num)
                     edge_exe_energy = self.edge_k*run_time*(self.edge_cpu_freq[n]**3)/task_exe_num
-                retain_flag_exe = np.ones(task_exe_num, dtype=np.bool)
+                retain_flag_exe = np.ones(task_exe_num, dtype=bool)
                 for i in range(task_exe_num):
                     self.edge_exe_lists[n][i]['remain'] -= edge_exe_size
                     self.edge_exe_lists[n][i]['exe_energy'] += edge_exe_energy
@@ -307,7 +309,7 @@ class MEC_Env():
         #####################################################
         #备注信息
         info = {}
-        return obs, reward, done ,info
+        return obs, reward, False, done, info  # Updated to return 5-tuple
     
     def generate_task(self):
         #####################################################

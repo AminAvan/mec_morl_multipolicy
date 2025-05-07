@@ -7,9 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-torch = "^2.7.0"
-torchvision = "^0.22.0"
-torchaudio = "^2.7.0"
+torch = "2.0.0"
+torchvision = "0.15.1"
+torchaudio = "2.0.1"
 gym = "^0.26.2"
 tianshou = "^1.1.0"
 tensorboard = "^2.19.0"
