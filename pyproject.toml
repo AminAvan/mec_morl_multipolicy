@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["AminAvan <aminavan.hardware@yahoo.com>"]
 readme = "README.md"
+## poetry run pip install torch==2.0.0+cu117 torchvision==0.15.1+cu117 torchaudio==2.0.1+cu117 --extra-index-url https://download.pytorch.org/whl/cu117
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -14,6 +15,9 @@ gym = "^0.26.2"
 tianshou = "^1.1.0"
 tensorboard = "^2.19.0"
 tqdm = "^4.67.1"
+psutil = "^7.0.0"
+pynvml = "^12.0.0"
+gputil = "^1.4.0"
 
 
 [build-system]

@@ -13,7 +13,8 @@ RAYLEIGH_SHADOW_FADING = 8
 RAYLEIGH_NOISE_dBm = -174
 
 ZERO_RES = 1e-6
-MAX_EDGE_NUM = 10
+# MAX_EDGE_NUM = 10 ## was
+MAX_EDGE_NUM = 2 ## was
         
 class MEC_Env():
     def __init__(self, conf_file='env/config1.json', conf_name='MEC_Config1', w=1.0, fc=None, fe=None, edge_num=None):
