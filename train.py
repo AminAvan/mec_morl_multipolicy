@@ -16,7 +16,7 @@ import time
 import json
 import math
 from tqdm import tqdm
-from env import MEC_Env, env_wrapper
+from env import MEC_Env
 from network import conv_mlp_net
 from datetime import datetime
 import psutil
